@@ -1,0 +1,39 @@
+//example of steps to run nodejs and mysql in docker
+//****NOTE: dont forget to change the values of the parts inside "<" and ">" to match your needs 
+
+
+
+//in the root of the folder run the next command to build the docker image for node
+docker build -t <node-app-name>:<label> .
+
+//create the network for the image in docker 
+docker network create <my-network-name>
+
+//use the next cmd to start mysql (needs to run before the nodejs image created before)
+//in this case the image is using myslq version 8.0 from docker hub
+
+docker run \
+--rm \
+-d \
+--name mysql_server \
+-e MYSQL_DATABASE='test_db' \
+-e MYSQL_USER='dan' \
+-e MYSQL_PASSWORD='secret' \
+-e MYSQL_ROOT_PASSWORD='secret' \
+--network <my-network-name> \
+mysql:8.0 
+
+//use the next command to start the nodejs image created before that will connect to the mysql container
+//-v $(pwd):/app tell docker to map the present working dir to the internal app dir in the container
+
+docker run \
+--rm \
+--name node-app \
+--network <my-network-name> \
+-p 3000:3000 \
+-v $(pwd):/app \
+<node-app-name>:<label> 
+
+//run the next commands to stop both of the images accordingly
+docker stop node-app
+docker stop mysql_server

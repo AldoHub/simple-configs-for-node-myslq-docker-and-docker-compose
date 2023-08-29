@@ -1,0 +1,32 @@
+#use this docker compose file as a basis to build a node and mysql app
+#this file would be in the root folder of a nodejs project, so all the configurations use the root folder
+#struture as basis
+
+#can change version to 3.9
+version: "3.8"
+
+services: 
+  app:
+    build: 
+      #context in this case is the root directory and will read the dockerfile 
+      context: .
+      #dockerfile example is in the root of this dir
+      dockerfile: Dockerfile
+    ports: 
+      - 3000:3000
+    volumes: 
+      #map the current directory -> app dir
+      - .:/app
+      #uses the app modules inside the docker context instead of the root dir
+      - '/app/node_modules'
+    depends_on: 
+      #we need the mysql imge to run first 
+      - mysql_server
+  
+  mysql_server:
+    image: mysql:8.0
+    environment: 
+      - MYSQL_DATABASE=test_db
+      - MYSQL_USER=dan
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=secret
